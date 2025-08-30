@@ -1,0 +1,63 @@
+[gd_scene load_steps=4 format=3 uid="uid://dld3t1n65av68"]
+
+[ext_resource type="Texture2D" uid="uid://vuo4pn8wxgwu" path="res://guys/guy.png" id="1_tcwo0"]
+
+[sub_resource type="GDScript" id="GDScript_tcwo0"]
+script/source = "extends Area2D
+
+var rng := RandomNumberGenerator.new()
+	
+var speed = rng.randi_range(350,750)
+var rot_speed = rng.randi_range(1,360)/120
+var random_direction = rng.randi_range(-15,15)/3
+
+var path: String = \"res://guys/\" + str(rng.randi_range(1,5)) + \".png\"
+
+signal collision
+
+func _ready():
+	# print(\"Wassup world hyd hb\")
+	
+	var width = get_viewport().get_visible_rect().size[0]
+	var random_x = rng.randi_range(0 ,width)
+	var random_y = rng.randi_range(-150,-50)
+	position = Vector2(random_x, random_y)
+	
+	
+	
+	$Sprite2D.texture = load(path)
+	
+	#print(width)
+
+func _process(delta):
+	
+	position += Vector2(random_direction, 5.0) * speed * delta * 0.2
+	
+	rotation += rot_speed * delta
+
+func _on_body_entered(_body: Node2D) -> void:
+	collision.emit()
+
+
+func _on_area_entered(area: Area2D) -> void:
+	area.queue_free()
+	queue_free()
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pxso2"]
+size = Vector2(96, 96)
+
+[node name="Meteor" type="Area2D"]
+collision_layer = 2
+collision_mask = 9
+script = SubResource("GDScript_tcwo0")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(3, 3)
+texture = ExtResource("1_tcwo0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_pxso2")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
